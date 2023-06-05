@@ -36,7 +36,10 @@ export const logInUser = async (req, res, next) => {
     }
     const passOk = await bcrypt.compare(password, user.password);
     if (passOk) {
-      const accessToken = generateAccessToken(email);
+      const accessToken = generateAccessToken({
+        name: user.name,
+        email: user.email,
+      });
       res.status(200).json({
         success: true,
         user,
@@ -48,4 +51,11 @@ export const logInUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export const getCurrentUserInfo = async (req, res, next) => {
+  res.json({
+    success: true,
+    user: req.user,
+  });
 };
