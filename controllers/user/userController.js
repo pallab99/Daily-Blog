@@ -1,3 +1,4 @@
+import { generateAccessToken } from '../../helper/accessToken.js';
 import { errorHandler } from '../../middlewares/error.js';
 import { User } from '../../model/user/userModel.js';
 import bcrypt from 'bcrypt';
@@ -19,6 +20,31 @@ export const registerNewUser = async (req, res, next) => {
     res.json({
       user,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const logInUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(400).json(errorHandler('Email is not valid'));
+    }
+    const passOk = await bcrypt.compare(password, user.password);
+    if (passOk) {
+      const accessToken = generateAccessToken(email);
+      res.status(200).json({
+        success: true,
+        user,
+        accessToken,
+      });
+    } else {
+      res.status(400).json(errorHandler('Wrong Credentials'));
+    }
   } catch (error) {
     next(error);
   }
