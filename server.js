@@ -3,6 +3,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import { connectMongoDbDatabase } from './configs/database/dbConnection.js';
 import userRouter from './routes/user/userRoute.js';
+import blogRouter from './routes/blog/blogRoute.js';
 
 const app = express();
 app.use(cors({ credentials: true }));
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/user', userRouter);
+app.use('/api/blog', blogRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port : ${port}`);

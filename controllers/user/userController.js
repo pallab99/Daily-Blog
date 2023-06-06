@@ -39,6 +39,7 @@ export const logInUser = async (req, res, next) => {
       const accessToken = generateAccessToken({
         name: user.name,
         email: user.email,
+        id:user._id
       });
       res.status(200).json({
         success: true,
