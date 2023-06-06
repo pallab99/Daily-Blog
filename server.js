@@ -1,9 +1,11 @@
-import express,{ json } from 'express';
+import express, { json } from 'express';
 import 'dotenv/config';
+import cors from 'cors';
 import { connectMongoDbDatabase } from './configs/database/dbConnection.js';
-import userRouter from './routes/user/userRoute.js'
+import userRouter from './routes/user/userRoute.js';
 
 const app = express();
+app.use(cors({ credentials: true }));
 app.use(json());
 
 const port = process.env.PORT || 3000;
@@ -14,7 +16,7 @@ app.get('/', (req, res) => {
   res.send('Hello,I am the base endPoint');
 });
 
-app.use("/api/user",userRouter)
+app.use('/api/user', userRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port : ${port}`);
