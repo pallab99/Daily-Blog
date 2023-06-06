@@ -1,6 +1,6 @@
 import { errorHandler } from './error.js';
 import jwt from 'jsonwebtoken';
-        
+
 export const validateToken = async (req, res, next) => {
   let token;
   let authHeader = req.headers.Authorization || req.headers.authorization;
@@ -11,6 +11,8 @@ export const validateToken = async (req, res, next) => {
         res.status(401).json(errorHandler('User is not authorized'));
       }
       req.user = decoded;
+      // console.log(req.user);
+      console.log(req.user)
       next();
     });
 
