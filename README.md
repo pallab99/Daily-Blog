@@ -1,7 +1,8 @@
 
 # Daily Blog
 
-This is a very simple blog app with registratin login and logout features.For the authentication JWT authentication is used.
+This is a very simple blog app with registratin login and logout features.For the authentication JWT authentication is used.For the client side code [Go here](https://github.com/pallab99/daily-blog-client).
+
 
 
 
