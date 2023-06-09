@@ -39,7 +39,7 @@ export const logInUser = async (req, res, next) => {
       const accessToken = generateAccessToken({
         name: user.name,
         email: user.email,
-        id:user._id
+        id: user._id,
       });
       res.status(200).json({
         success: true,
@@ -59,4 +59,31 @@ export const getCurrentUserInfo = async (req, res, next) => {
     success: true,
     user: req.user,
   });
+};
+
+export const forgetPassword = async (req, res, next) => {
+  const { email, password, confirmPassword } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    console.log(user);
+    if (!user) {
+      res.status(400).json(errorHandler('Wrong Email'));
+    } else {
+      if (password != confirmPassword) {
+        res.status(400).json(errorHandler('Password does not match'));
+      } else {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({
+          success: true,
+          message: 'Password changed successfully',
+          user,
+        });
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
 };
