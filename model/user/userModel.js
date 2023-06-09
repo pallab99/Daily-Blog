@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const schema = new Schema({
@@ -16,10 +16,17 @@ const schema = new Schema({
     type: String,
     require: true,
   },
+  verificationCode: {
+    type: Number,
+  },
+  isVerified:{
+    type:Boolean,
+    default:false
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-export const User = mongoose.model("User", schema);
+export const User = mongoose.model('User', schema);
