@@ -1,7 +1,34 @@
+import { emailVerification } from '../../configs/email/emailVerification.js';
 import { generateAccessToken } from '../../helper/accessToken.js';
+import { generateRandomNumber } from '../../helper/randomNumberGenerator.js';
 import { errorHandler } from '../../middlewares/error.js';
 import { User } from '../../model/user/userModel.js';
 import bcrypt from 'bcrypt';
+
+export const emailVerificationByCode = async (req, res, next) => {
+  try {
+    const { verificationCode } = req.body;
+    console.log(verificationCode);
+    const user = await User.findOne({ verificationCode });
+    if (user.isVerified) {
+      res
+        .status(400)
+        .json(errorHandler('Email is already verified please login'));
+    }
+    if (!user) {
+      res.status(400).json(errorHandler('Verification code is not correct'));
+    }
+    user.isVerified = true;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: 'Email Verified Successfully',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const registerNewUser = async (req, res, next) => {
   try {
@@ -16,7 +43,14 @@ export const registerNewUser = async (req, res, next) => {
       res.status(400).json(errorHandler('Email is already taken'));
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    user = await User.create({ name, email, password: hashedPassword });
+    const verificationCode = generateRandomNumber();
+    user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      verificationCode,
+    });
+    emailVerification(user);
     res.json({
       user,
     });
