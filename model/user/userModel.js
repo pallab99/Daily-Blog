@@ -18,6 +18,7 @@ const schema = new Schema({
   },
   verificationCode: {
     type: Number,
+    expires:120
   },
   isVerified:{
     type:Boolean,
