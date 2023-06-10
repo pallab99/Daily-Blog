@@ -8,16 +8,16 @@ import bcrypt from 'bcrypt';
 export const emailVerificationByCode = async (req, res, next) => {
   try {
     const { verificationCode } = req.body;
-    console.log(verificationCode);
     const user = await User.findOne({ verificationCode });
-    if (user.isVerified) {
+    if (!user) {
+      res.status(400).json(errorHandler('Verification code is not correct'));
+    }
+    if (user.isVerified === true) {
       res
         .status(400)
         .json(errorHandler('Email is already verified please login'));
     }
-    if (!user) {
-      res.status(400).json(errorHandler('Verification code is not correct'));
-    }
+
     user.isVerified = true;
     await user.save();
     res.status(200).json({
