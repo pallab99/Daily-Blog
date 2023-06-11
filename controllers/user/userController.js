@@ -1,24 +1,68 @@
 import { emailVerification } from '../../configs/email/emailVerification.js';
 import { generateAccessToken } from '../../helper/accessToken.js';
-import { generateRandomNumber } from '../../helper/randomNumberGenerator.js';
+import {
+  generateRandomNumber,
+  isVerificationCodeExpired,
+} from '../../helper/randomNumberGenerator.js';
 import { errorHandler } from '../../middlewares/error.js';
 import { User } from '../../model/user/userModel.js';
 import bcrypt from 'bcrypt';
+
+export const resendVerificationCode = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(400).json(errorHandler('User not found'));
+    }
+    if (user.isVerified === true) {
+      res.status(400).json(errorHandler('User is already verified'));
+    }
+    if (!isVerificationCodeExpired(user)) {
+      res
+        .status(400)
+        .json(errorHandler('Verification code has not expired yet'));
+    } else {
+      const verificationCode = generateRandomNumber();
+      const verificationCodeExpiresAt = new Date();
+      verificationCodeExpiresAt.setMinutes(
+        verificationCodeExpiresAt.getMinutes() + 2
+      );
+      user.verificationCode = verificationCode;
+      user.verificationCodeExpiresAt = verificationCodeExpiresAt;
+      user.isVerified = false;
+      await user.save();
+
+      emailVerification(user);
+      res.json({
+        success: true,
+        message: 'Verification code resent successfully',
+        user,
+      });
+    }
+  } catch (error) {}
+};
 
 export const emailVerificationByCode = async (req, res, next) => {
   try {
     const { verificationCode } = req.body;
     const user = await User.findOne({ verificationCode });
+
     if (!user) {
       res.status(400).json(errorHandler('Verification code is not correct'));
     }
-    if (user.isVerified === true) {
+    if (isVerificationCodeExpired(user)) {
+      res.status(400).json(errorHandler('Verification code is expired'));
+    }
+    if (user.isVerified) {
       res
         .status(400)
         .json(errorHandler('Email is already verified please login'));
     }
-
     user.isVerified = true;
+    user.verificationCode = undefined;
+    user.verificationCodeExpiresAt = undefined;
     await user.save();
     res.status(200).json({
       success: true,
@@ -44,11 +88,16 @@ export const registerNewUser = async (req, res, next) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationCode = generateRandomNumber();
+    const verificationCodeExpiresAt = new Date();
+    verificationCodeExpiresAt.setMinutes(
+      verificationCodeExpiresAt.getMinutes() + 2
+    );
     user = await User.create({
       name,
       email,
       password: hashedPassword,
       verificationCode,
+      verificationCodeExpiresAt,
     });
     emailVerification(user);
     res.json({

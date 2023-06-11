@@ -18,11 +18,12 @@ const schema = new Schema({
   },
   verificationCode: {
     type: Number,
-    expires:120
+    expires: 120,
   },
-  isVerified:{
-    type:Boolean,
-    default:false
+  verificationCodeExpiresAt: { type: Date },
+  isVerified: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,
