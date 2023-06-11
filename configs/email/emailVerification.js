@@ -16,7 +16,7 @@ export const emailVerification = (user) => {
     from: email,
     to: user?.email,
     subject: 'Email verification',
-    text: `your verification code is ${user?.verificationCode}`,
+    text: `your verification code is ${user?.verificationCode}.This code will expired after 2 minutes`,
   };
 
   mailTransporter.sendMail(details, (err) => {
