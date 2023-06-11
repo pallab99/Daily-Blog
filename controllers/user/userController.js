@@ -47,18 +47,17 @@ export const emailVerificationByCode = async (req, res, next) => {
     const { verificationCode } = req.body;
     const user = await User.findOne({ verificationCode });
     console.log(user);
-    if (user == null || !user) {
-      res.status(400).json(errorHandler('Verification code is not correct'));
-    } else if (isVerificationCodeExpired(user)) {
+     if (isVerificationCodeExpired(user)) {
       res.status(400).json(errorHandler('Verification code is expired'));
-    } else if (user?.isVerified) {
+    }
+    else if (user == null || !user) {
+      res.status(400).json(errorHandler('Verification code is not correct'));
+    }  else if (user?.isVerified) {
       res
         .status(400)
         .json(errorHandler('Email is already verified please login'));
     } else {
-      user.isVerified = true;
-      // user.verificationCode = undefined;
-      // user.verificationCodeExpiresAt = undefined;
+      user.isVerified = true;    
       await user.save();
       res.status(200).json({
         success: true,
