@@ -5,5 +5,5 @@ export const generateRandomNumber = () => {
 };
 
 export const isVerificationCodeExpired = (user) => {
-  return new Date() > user.verificationCodeExpiresAt;
+  return new Date() > user?.verificationCodeExpiresAt;
 };

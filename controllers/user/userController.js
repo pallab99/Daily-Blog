@@ -15,11 +15,9 @@ export const resendVerificationCode = async (req, res, next) => {
 
     if (!user) {
       res.status(400).json(errorHandler('User not found'));
-    }
-    if (user.isVerified === true) {
+    } else if (user?.isVerified) {
       res.status(400).json(errorHandler('User is already verified'));
-    }
-    if (!isVerificationCodeExpired(user)) {
+    } else if (!isVerificationCodeExpired(user)) {
       res
         .status(400)
         .json(errorHandler('Verification code has not expired yet'));
@@ -48,27 +46,26 @@ export const emailVerificationByCode = async (req, res, next) => {
   try {
     const { verificationCode } = req.body;
     const user = await User.findOne({ verificationCode });
-
-    if (!user) {
+    console.log(user);
+    if (user == null || !user) {
       res.status(400).json(errorHandler('Verification code is not correct'));
-    }
-    if (isVerificationCodeExpired(user)) {
+    } else if (isVerificationCodeExpired(user)) {
       res.status(400).json(errorHandler('Verification code is expired'));
-    }
-    if (user.isVerified) {
+    } else if (user?.isVerified) {
       res
         .status(400)
         .json(errorHandler('Email is already verified please login'));
+    } else {
+      user.isVerified = true;
+      // user.verificationCode = undefined;
+      // user.verificationCodeExpiresAt = undefined;
+      await user.save();
+      res.status(200).json({
+        success: true,
+        message: 'Email Verified Successfully',
+        user,
+      });
     }
-    user.isVerified = true;
-    user.verificationCode = undefined;
-    user.verificationCodeExpiresAt = undefined;
-    await user.save();
-    res.status(200).json({
-      success: true,
-      message: 'Email Verified Successfully',
-      user,
-    });
   } catch (error) {
     next(error);
   }
