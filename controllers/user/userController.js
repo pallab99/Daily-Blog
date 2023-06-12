@@ -194,7 +194,11 @@ export const emailForForgetPassword = async (req, res, next) => {
   }
 };
 
-export const resendVerificationCodeForForgetPassword = async (req, res, next) => {
+export const resendVerificationCodeForForgetPassword = async (
+  req,
+  res,
+  next
+) => {
   const { email } = req.body;
   try {
     let user = await User.findOne({ email });
@@ -223,4 +227,36 @@ export const resendVerificationCodeForForgetPassword = async (req, res, next) =>
       });
     }
   } catch (error) {}
+};
+
+export const updateUserProfile = async (req, res, next) => {
+  const id = req.params.id;
+  const { name } = req.body;
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(400).json(errorHandler('User not found'));
+    } else {
+      user.name = name;
+      await user.save();
+      res.status(200).json({
+        success: true,
+        message: 'Details Updated Successfully',
+        user,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUserAccount = async (req, res, next) => {
+  const id = req.params.id;
+  const user = await User.findById(id);
+  await user.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: 'Account Deleted!',
+  });
 };
