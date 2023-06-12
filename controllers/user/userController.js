@@ -1,4 +1,5 @@
 import { emailVerification } from '../../configs/email/emailVerification.js';
+import { emailVerificationForForgetPassword } from '../../configs/email/emailVerificationForForgetPassword.js';
 import { generateAccessToken } from '../../helper/accessToken.js';
 import {
   generateRandomNumber,
@@ -46,18 +47,16 @@ export const emailVerificationByCode = async (req, res, next) => {
   try {
     const { verificationCode } = req.body;
     const user = await User.findOne({ verificationCode });
-    console.log(user);
-     if (isVerificationCodeExpired(user)) {
+    if (isVerificationCodeExpired(user)) {
       res.status(400).json(errorHandler('Verification code is expired'));
-    }
-    else if (user == null || !user) {
+    } else if (user == null || !user) {
       res.status(400).json(errorHandler('Verification code is not correct'));
-    }  else if (user?.isVerified) {
+    } else if (user?.isVerified) {
       res
         .status(400)
         .json(errorHandler('Email is already verified please login'));
     } else {
-      user.isVerified = true;    
+      user.isVerified = true;
       await user.save();
       res.status(200).json({
         success: true,
@@ -141,12 +140,13 @@ export const getCurrentUserInfo = async (req, res, next) => {
 };
 
 export const forgetPassword = async (req, res, next) => {
-  const { email, password, confirmPassword } = req.body;
+  const { verificationCode, password, confirmPassword } = req.body;
   try {
-    const user = await User.findOne({ email });
-    console.log(user);
-    if (!user) {
-      res.status(400).json(errorHandler('Wrong Email'));
+    const user = await User.findOne({ verificationCode });
+    if (isVerificationCodeExpired(user)) {
+      res.status(400).json(errorHandler('Verification code is expired'));
+    } else if (!user) {
+      res.status(400).json(errorHandler('Wrong verification code'));
     } else {
       if (password != confirmPassword) {
         res.status(400).json(errorHandler('Password does not match'));
@@ -165,4 +165,62 @@ export const forgetPassword = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export const emailForForgetPassword = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    let user = await User.findOne({ email });
+    if (!user) {
+      res.status(400).json(errorHandler('Can not find the user'));
+    } else {
+      const verificationCode = generateRandomNumber();
+      const verificationCodeExpiresAt = new Date();
+      verificationCodeExpiresAt.setMinutes(
+        verificationCodeExpiresAt.getMinutes() + 2
+      );
+      user.verificationCode = verificationCode;
+      user.verificationCodeExpiresAt = verificationCodeExpiresAt;
+      await user.save();
+      emailVerificationForForgetPassword(user);
+      res.json({
+        success: true,
+        message: 'Email sent successfully',
+        user,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendVerificationCodeForForgetPassword = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(400).json(errorHandler('User not found'));
+    } else if (!isVerificationCodeExpired(user)) {
+      res
+        .status(400)
+        .json(errorHandler('Verification code has not expired yet'));
+    } else {
+      const verificationCode = generateRandomNumber();
+      const verificationCodeExpiresAt = new Date();
+      verificationCodeExpiresAt.setMinutes(
+        verificationCodeExpiresAt.getMinutes() + 2
+      );
+      user.verificationCode = verificationCode;
+      user.verificationCodeExpiresAt = verificationCodeExpiresAt;
+      await user.save();
+
+      emailVerificationForForgetPassword(user);
+      res.json({
+        success: true,
+        message: 'Verification code resent successfully',
+        user,
+      });
+    }
+  } catch (error) {}
 };
