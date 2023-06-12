@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  deleteUserAccount,
   emailForForgetPassword,
   emailVerificationByCode,
   forgetPassword,
@@ -8,6 +9,7 @@ import {
   registerNewUser,
   resendVerificationCode,
   resendVerificationCodeForForgetPassword,
+  updateUserProfile,
 } from '../../controllers/user/userController.js';
 import { validateToken } from '../../middlewares/tokenHandler.js';
 const router = express.Router();
@@ -23,4 +25,6 @@ router.post(
   '/resend-verification-code-for-forget-password',
   resendVerificationCodeForForgetPassword
 );
+router.put('/update-user-details/:id', updateUserProfile);
+router.delete('/delete-user-account/:id', deleteUserAccount);
 export default router;
