@@ -29,6 +29,9 @@ const schema = new Schema({
     type: Date,
     default: Date.now,
   },
+  profilePhoto:{
+    type:String
+  }
 });
 
 export const User = mongoose.model('User', schema);

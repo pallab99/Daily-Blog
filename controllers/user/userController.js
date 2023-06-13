@@ -8,6 +8,8 @@ import {
 import { errorHandler } from '../../middlewares/error.js';
 import { User } from '../../model/user/userModel.js';
 import bcrypt from 'bcrypt';
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/' });
 
 export const resendVerificationCode = async (req, res, next) => {
   const { email } = req.body;
@@ -235,12 +237,15 @@ export const resendVerificationCodeForForgetPassword = async (
 export const updateUserProfile = async (req, res, next) => {
   const id = req.params.id;
   const { name } = req.body;
+  const profilePhotoPath = req.file.path;
+
   try {
     const user = await User.findById(id);
     if (!user) {
       res.status(400).json(errorHandler('User not found'));
     } else {
       user.name = name;
+      user.profilePhoto = profilePhotoPath;
       await user.save();
       res.status(200).json({
         success: true,
@@ -264,9 +269,9 @@ export const deleteUserAccount = async (req, res, next) => {
   });
 };
 
-export const logOut=async(req,res,next)=>{
+export const logOut = async (req, res, next) => {
   res.status(200).json({
-    success:true,
-    message:"Logout Successfully"
-  })
-}
+    success: true,
+    message: 'Logout Successfully',
+  });
+};
