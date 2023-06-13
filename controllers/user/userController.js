@@ -263,3 +263,10 @@ export const deleteUserAccount = async (req, res, next) => {
     message: 'Account Deleted!',
   });
 };
+
+export const logOut=async(req,res,next)=>{
+  res.status(200).json({
+    success:true,
+    message:"Logout Successfully"
+  })
+}

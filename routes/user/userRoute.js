@@ -6,6 +6,7 @@ import {
   forgetPassword,
   getCurrentUserInfo,
   logInUser,
+  logOut,
   registerNewUser,
   resendVerificationCode,
   resendVerificationCodeForForgetPassword,
@@ -27,4 +28,5 @@ router.post(
 );
 router.put('/update-user-details/:id', updateUserProfile);
 router.delete('/delete-user-account/:id', deleteUserAccount);
+router.get('/logout',logOut)
 export default router;
