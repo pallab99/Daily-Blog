@@ -133,9 +133,12 @@ export const logInUser = async (req, res, next) => {
 };
 
 export const getCurrentUserInfo = async (req, res, next) => {
+  const id = req.params.id;
+  const user = await User.findById(id);
+
   res.json({
     success: true,
-    user: req.user,
+    user,
   });
 };
 

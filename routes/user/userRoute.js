@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.post('/register', registerNewUser);
 router.post('/login', logInUser);
-router.get('/me', validateToken, getCurrentUserInfo);
+router.get('/me/:id', validateToken, getCurrentUserInfo);
 router.post('/forget-password', forgetPassword);
 router.post('/verify-email', emailVerificationByCode);
 router.post('/resent-verification-code', resendVerificationCode);
