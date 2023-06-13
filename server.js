@@ -6,7 +6,14 @@ import userRouter from './routes/user/userRoute.js';
 import blogRouter from './routes/blog/blogRoute.js';
 
 const app = express();
-app.use(cors({ credentials: true }));
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(json());
 
 const port = process.env.PORT || 3000;
