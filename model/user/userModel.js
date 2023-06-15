@@ -28,7 +28,7 @@ const schema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  },
+  }
 });
 
 export const User = mongoose.model('User', schema);

@@ -13,6 +13,8 @@ import {
   updateUserProfile,
 } from '../../controllers/user/userController.js';
 import { validateToken } from '../../middlewares/tokenHandler.js';
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/' });
 const router = express.Router();
 
 router.post('/register', registerNewUser);
@@ -28,5 +30,5 @@ router.post(
 );
 router.put('/update-user-details/:id', updateUserProfile);
 router.delete('/delete-user-account/:id', deleteUserAccount);
-router.get('/logout',logOut)
+router.get('/logout', logOut);
 export default router;
