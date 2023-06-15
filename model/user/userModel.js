@@ -28,9 +28,6 @@ const schema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  },
-  profilePhoto:{
-    type:String
   }
 });
 
